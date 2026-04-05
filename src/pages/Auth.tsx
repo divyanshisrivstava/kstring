@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,21 +64,20 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-          redirectTo: `${window.location.origin}/`,
-          queryParams: {
-            hd: "kiit.ac.in",
-            prompt: "select_account",
-            ...(isKiitEmail(email) ? { login_hint: email.trim().toLowerCase() } : {}),
-          },
+      const result = await lovable.auth.signInWithOAuth("google", {
+        redirect_uri: window.location.origin,
+        extraParams: {
+          hd: "kiit.ac.in",
+          prompt: "select_account",
+          ...(isKiitEmail(email) ? { login_hint: email.trim().toLowerCase() } : {}),
         },
       });
 
-      if (error) throw error;
+      if (result && "error" in result && result.error) {
+        throw result.error;
+      }
     } catch (error: any) {
-      toast.error(error.message);
+      toast.error(String(error?.message || error));
       setLoading(false);
     }
   };
