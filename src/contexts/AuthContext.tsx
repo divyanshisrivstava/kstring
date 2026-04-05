@@ -14,6 +14,7 @@ interface Profile {
   avatar_url: string;
   interests: string[];
   terms_accepted: boolean;
+  privacy_accepted: boolean;
   onboarding_completed: boolean;
 }
 

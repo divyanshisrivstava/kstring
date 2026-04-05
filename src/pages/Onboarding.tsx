@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { GraduationCap, ArrowRight } from "lucide-react";
 
@@ -34,12 +35,13 @@ const Onboarding = () => {
   const [bio, setBio] = useState("");
   const [interests, setInterests] = useState("");
   const [termsAccepted, setTermsAccepted] = useState(false);
+  const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!termsAccepted) {
-      toast.error("Please accept the Terms & Conditions");
+    if (!termsAccepted || !privacyAccepted) {
+      toast.error("Please accept both the Terms & Conditions and Privacy Policy");
       return;
     }
     if (!branch || !batchStart || !batchEnd) {
@@ -61,6 +63,7 @@ const Onboarding = () => {
           bio,
           interests: interests.split(",").map((s) => s.trim()).filter(Boolean),
           terms_accepted: true,
+          privacy_accepted: true,
           onboarding_completed: true,
           account_expires_at: expiresAt,
         })
@@ -153,18 +156,37 @@ const Onboarding = () => {
             />
           </div>
 
-          <div className="flex items-start gap-3 p-4 rounded-lg bg-muted/50">
-            <Checkbox
-              id="terms"
-              checked={termsAccepted}
-              onCheckedChange={(checked) => setTermsAccepted(checked === true)}
-              className="mt-0.5"
-            />
-            <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
-              I accept the <span className="text-primary font-medium">Terms & Conditions</span> and{" "}
-              <span className="text-primary font-medium">Privacy Policy</span>. I understand my account
-              will expire at the end of my graduation year.
-            </label>
+          <div className="space-y-3 rounded-lg bg-muted/50 p-4">
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="terms"
+                checked={termsAccepted}
+                onCheckedChange={(checked) => setTermsAccepted(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="terms" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                I accept the{" "}
+                <Link to="/terms" className="font-medium text-primary hover:underline">
+                  Terms & Conditions
+                </Link>
+                .
+              </label>
+            </div>
+            <div className="flex items-start gap-3">
+              <Checkbox
+                id="privacy"
+                checked={privacyAccepted}
+                onCheckedChange={(checked) => setPrivacyAccepted(checked === true)}
+                className="mt-0.5"
+              />
+              <label htmlFor="privacy" className="text-sm text-muted-foreground leading-relaxed cursor-pointer">
+                I accept the{" "}
+                <Link to="/privacy" className="font-medium text-primary hover:underline">
+                  Privacy Policy
+                </Link>
+                {" "}and understand my account will expire at the end of my graduation year.
+              </label>
+            </div>
           </div>
 
           <Button type="submit" className="w-full h-12 text-base gap-2" disabled={loading}>

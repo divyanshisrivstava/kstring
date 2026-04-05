@@ -216,6 +216,7 @@ export type Database = {
           id: string
           interests: string[] | null
           onboarding_completed: boolean | null
+          privacy_accepted: boolean
           terms_accepted: boolean | null
           updated_at: string
           user_id: string
@@ -233,6 +234,7 @@ export type Database = {
           id?: string
           interests?: string[] | null
           onboarding_completed?: boolean | null
+          privacy_accepted?: boolean
           terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
@@ -250,6 +252,7 @@ export type Database = {
           id?: string
           interests?: string[] | null
           onboarding_completed?: boolean | null
+          privacy_accepted?: boolean
           terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string

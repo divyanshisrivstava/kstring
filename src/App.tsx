@@ -1,5 +1,6 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
+import { useEffect } from "react";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -14,11 +15,28 @@ import Messages from "@/pages/Messages";
 import Bookmarks from "@/pages/Bookmarks";
 import Profile from "@/pages/Profile";
 import NotFound from "@/pages/NotFound";
+import Terms from "@/pages/Terms";
+import Privacy from "@/pages/Privacy";
+import { getInvalidDomainMessage, isKiitEmail } from "@/lib/auth";
+import { toast } from "sonner";
 
 const queryClient = new QueryClient();
 
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, profile, loading } = useAuth();
+const ProtectedRoute = ({
+  children,
+  requireOnboarding = true,
+}: {
+  children: React.ReactNode;
+  requireOnboarding?: boolean;
+}) => {
+  const { user, profile, loading, signOut } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user && !isKiitEmail(user.email)) {
+      toast.error(getInvalidDomainMessage());
+      void signOut();
+    }
+  }, [loading, signOut, user]);
 
   if (loading) {
     return (
@@ -29,7 +47,16 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   }
 
   if (!user) return <Navigate to="/auth" replace />;
-  if (profile && !profile.onboarding_completed) return <Navigate to="/onboarding" replace />;
+  if (!isKiitEmail(user.email)) return <Navigate to="/auth?reason=invalid-domain" replace />;
+  if (!profile) return null;
+
+  if (!profile.terms_accepted || !profile.privacy_accepted || !profile.onboarding_completed) {
+    if (requireOnboarding) {
+      return <Navigate to="/onboarding" replace />;
+    }
+  } else if (!requireOnboarding) {
+    return <Navigate to="/" replace />;
+  }
 
   return <>{children}</>;
 };
@@ -43,7 +70,16 @@ const App = () => (
         <AuthProvider>
           <Routes>
             <Route path="/auth" element={<Auth />} />
-            <Route path="/onboarding" element={<Onboarding />} />
+            <Route
+              path="/onboarding"
+              element={
+                <ProtectedRoute requireOnboarding={false}>
+                  <Onboarding />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/terms" element={<Terms />} />
+            <Route path="/privacy" element={<Privacy />} />
             <Route
               element={
                 <ProtectedRoute>

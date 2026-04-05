@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { lovable } from "@/integrations/lovable";
 import { Button } from "@/components/ui/button";
@@ -7,8 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Mail, Lock, User, ArrowRight, GraduationCap } from "lucide-react";
-
-const KIIT_DOMAIN = "@kiit.ac.in";
+import { getInvalidDomainMessage, isKiitEmail } from "@/lib/auth";
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,15 +16,19 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
 
-  const validateEmail = (email: string) => {
-    return email.toLowerCase().endsWith(KIIT_DOMAIN);
-  };
+  useEffect(() => {
+    if (searchParams.get("reason") === "invalid-domain") {
+      toast.error(getInvalidDomainMessage());
+      setSearchParams({}, { replace: true });
+    }
+  }, [searchParams, setSearchParams]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validateEmail(email)) {
-      toast.error("Only @kiit.ac.in email addresses are allowed");
+    if (!isKiitEmail(email)) {
+      toast.error(getInvalidDomainMessage());
       return;
     }
     setLoading(true);
@@ -54,6 +57,9 @@ const Auth = () => {
   const handleGoogleSignIn = async () => {
     const result = await lovable.auth.signInWithOAuth("google", {
       redirect_uri: window.location.origin,
+      extraParams: {
+        hd: "kiit.ac.in",
+      },
     });
     if (result && "error" in result && result.error) {
       toast.error(String(result.error));
@@ -99,7 +105,7 @@ const Auth = () => {
               {isLogin ? "Welcome back" : "Create your account"}
             </h2>
             <p className="text-muted-foreground">
-              {isLogin ? "Sign in with your KIIT email" : "Join with your @kiit.ac.in email"}
+              {isLogin ? "Sign in with your KIIT email" : "Join with your verified @kiit.ac.in email"}
             </p>
           </div>
 
