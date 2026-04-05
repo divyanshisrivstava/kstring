@@ -8,6 +8,7 @@ interface Profile {
   full_name: string;
   email: string;
   bio: string;
+  course: string;
   branch: string;
   batch_start: number | null;
   batch_end: number | null;

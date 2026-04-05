@@ -210,6 +210,7 @@ export type Database = {
           batch_start: number | null
           bio: string | null
           branch: string | null
+          course: string | null
           created_at: string
           email: string
           full_name: string
@@ -228,6 +229,7 @@ export type Database = {
           batch_start?: number | null
           bio?: string | null
           branch?: string | null
+          course?: string | null
           created_at?: string
           email?: string
           full_name?: string
@@ -246,6 +248,7 @@ export type Database = {
           batch_start?: number | null
           bio?: string | null
           branch?: string | null
+          course?: string | null
           created_at?: string
           email?: string
           full_name?: string

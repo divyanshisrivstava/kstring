@@ -50,7 +50,13 @@ const ProtectedRoute = ({
   if (!isKiitEmail(user.email)) return <Navigate to="/auth?reason=invalid-domain" replace />;
   if (!profile) return null;
 
-  if (!profile.terms_accepted || !profile.privacy_accepted || !profile.onboarding_completed) {
+  const hasAcceptedTerms = Boolean(profile.terms_accepted);
+  const hasAcceptedPrivacy =
+    profile.privacy_accepted === undefined || profile.privacy_accepted === null
+      ? hasAcceptedTerms
+      : Boolean(profile.privacy_accepted);
+
+  if (!hasAcceptedTerms || !hasAcceptedPrivacy || !profile.onboarding_completed) {
     if (requireOnboarding) {
       return <Navigate to="/onboarding" replace />;
     }

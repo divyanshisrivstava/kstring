@@ -117,13 +117,21 @@ const Profile = () => {
                 </DialogContent>
               </Dialog>
             </div>
-            <p className="text-muted-foreground mt-1">{profile?.email}</p>
-            {profile?.bio && <p className="text-foreground mt-2">{profile.bio}</p>}
-            <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5">
-                <BookOpen className="h-4 w-4" />
-                {profile?.branch}
-              </span>
+              <p className="text-muted-foreground mt-1">{profile?.email}</p>
+              {profile?.bio && <p className="text-foreground mt-2">{profile.bio}</p>}
+              <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground flex-wrap">
+                {profile?.course && (
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen className="h-4 w-4" />
+                    {profile.course}
+                  </span>
+                )}
+                {profile?.branch && (
+                  <span className="flex items-center gap-1.5">
+                    <BookOpen className="h-4 w-4" />
+                    {profile.branch}
+                  </span>
+                )}
               {profile?.batch_start && profile?.batch_end && (
                 <span className="flex items-center gap-1.5">
                   <Calendar className="h-4 w-4" />

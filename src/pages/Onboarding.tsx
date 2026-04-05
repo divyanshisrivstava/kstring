@@ -11,17 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import { GraduationCap, ArrowRight } from "lucide-react";
-
-const BRANCHES = [
-  "Computer Science & Engineering",
-  "Information Technology",
-  "Electronics & Communication",
-  "Electrical Engineering",
-  "Mechanical Engineering",
-  "Civil Engineering",
-  "Biotechnology",
-  "Other",
-];
+import { getCourseByValue, KIIT_COURSES } from "@/lib/kiit-academics";
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = Array.from({ length: 8 }, (_, i) => CURRENT_YEAR - 4 + i);
@@ -29,6 +19,7 @@ const YEARS = Array.from({ length: 8 }, (_, i) => CURRENT_YEAR - 4 + i);
 const Onboarding = () => {
   const { user, refreshProfile } = useAuth();
   const navigate = useNavigate();
+  const [course, setCourse] = useState("");
   const [branch, setBranch] = useState("");
   const [batchStart, setBatchStart] = useState("");
   const [batchEnd, setBatchEnd] = useState("");
@@ -37,6 +28,21 @@ const Onboarding = () => {
   const [termsAccepted, setTermsAccepted] = useState(false);
   const [privacyAccepted, setPrivacyAccepted] = useState(false);
   const [loading, setLoading] = useState(false);
+  const selectedCourse = getCourseByValue(course);
+  const courseBranches = selectedCourse?.branches ?? [];
+  const requiresBranch = courseBranches.length > 0;
+
+  const removeUnknownColumnFromPayload = (
+    payload: Record<string, unknown>,
+    message?: string,
+  ) => {
+    const match = message?.match(/Could not find the '([^']+)' column/);
+    if (!match) return null;
+
+    const nextPayload = { ...payload };
+    delete nextPayload[match[1]];
+    return nextPayload;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,7 +50,7 @@ const Onboarding = () => {
       toast.error("Please accept both the Terms & Conditions and Privacy Policy");
       return;
     }
-    if (!branch || !batchStart || !batchEnd) {
+    if (!course || !batchStart || !batchEnd || (requiresBranch && !branch)) {
       toast.error("Please fill in all required fields");
       return;
     }
@@ -54,20 +60,28 @@ const Onboarding = () => {
       const batchEndNum = parseInt(batchEnd);
       const expiresAt = new Date(batchEndNum, 11, 31).toISOString();
 
-      const { error } = await supabase
-        .from("profiles")
-        .update({
-          branch,
-          batch_start: parseInt(batchStart),
-          batch_end: batchEndNum,
-          bio,
-          interests: interests.split(",").map((s) => s.trim()).filter(Boolean),
-          terms_accepted: true,
-          privacy_accepted: true,
-          onboarding_completed: true,
-          account_expires_at: expiresAt,
-        })
-        .eq("user_id", user!.id);
+      const payload = {
+        course: selectedCourse?.label ?? course,
+        branch: requiresBranch ? branch : "",
+        batch_start: parseInt(batchStart),
+        batch_end: batchEndNum,
+        bio,
+        interests: interests.split(",").map((s) => s.trim()).filter(Boolean),
+        terms_accepted: true,
+        privacy_accepted: true,
+        onboarding_completed: true,
+        account_expires_at: expiresAt,
+      };
+
+      let activePayload: Record<string, unknown> = payload;
+      let { error } = await supabase.from("profiles").update(activePayload).eq("user_id", user!.id);
+
+      while (error?.message?.includes("Could not find the")) {
+        const nextPayload = removeUnknownColumnFromPayload(activePayload, error.message);
+        if (!nextPayload) break;
+        activePayload = nextPayload;
+        ({ error } = await supabase.from("profiles").update(activePayload).eq("user_id", user!.id));
+      }
 
       if (error) throw error;
       await refreshProfile();
@@ -93,18 +107,46 @@ const Onboarding = () => {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label>Branch *</Label>
-            <Select value={branch} onValueChange={setBranch}>
+            <Label>Course *</Label>
+            <Select
+              value={course}
+              onValueChange={(value) => {
+                setCourse(value);
+                setBranch("");
+              }}
+            >
               <SelectTrigger className="h-12">
-                <SelectValue placeholder="Select your branch" />
+                <SelectValue placeholder="Select your course" />
               </SelectTrigger>
               <SelectContent>
-                {BRANCHES.map((b) => (
-                  <SelectItem key={b} value={b}>{b}</SelectItem>
+                {KIIT_COURSES.map((item) => (
+                  <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
+
+          {requiresBranch && (
+            <div className="space-y-2">
+              <Label>Branch / Specialization *</Label>
+              <Select value={branch} onValueChange={setBranch}>
+                <SelectTrigger className="h-12">
+                  <SelectValue placeholder="Select your branch or specialization" />
+                </SelectTrigger>
+                <SelectContent>
+                  {courseBranches.map((option) => (
+                    <SelectItem key={option} value={option}>{option}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {course && !requiresBranch && (
+            <div className="rounded-lg border border-border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
+              This course does not need a separate branch selection.
+            </div>
+          )}
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">

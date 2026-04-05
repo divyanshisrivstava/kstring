@@ -59,6 +59,8 @@ const Auth = () => {
       redirect_uri: window.location.origin,
       extraParams: {
         hd: "kiit.ac.in",
+        prompt: "select_account",
+        ...(isKiitEmail(email) ? { login_hint: email.trim().toLowerCase() } : {}),
       },
     });
     if (result && "error" in result && result.error) {
@@ -122,6 +124,10 @@ const Auth = () => {
             </svg>
             Continue with Google
           </Button>
+          <p className="text-xs text-center text-muted-foreground leading-relaxed">
+            Choose your <span className="font-medium text-foreground">@kiit.ac.in</span> Google account only. Personal
+            Gmail accounts are not allowed.
+          </p>
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
