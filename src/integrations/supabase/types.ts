@@ -14,6 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
+      alumni_profiles: {
+        Row: {
+          admission_year: number | null
+          avatar_url: string | null
+          batch_end: number | null
+          batch_start: number | null
+          branch: string | null
+          course: string | null
+          created_at: string
+          email: string
+          full_name: string
+          github_url: string | null
+          id: string
+          instagram_url: string | null
+          linkedin_url: string | null
+          original_user_id: string | null
+          whatsapp_url: string | null
+        }
+        Insert: {
+          admission_year?: number | null
+          avatar_url?: string | null
+          batch_end?: number | null
+          batch_start?: number | null
+          branch?: string | null
+          course?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          github_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          original_user_id?: string | null
+          whatsapp_url?: string | null
+        }
+        Update: {
+          admission_year?: number | null
+          avatar_url?: string | null
+          batch_end?: number | null
+          batch_start?: number | null
+          branch?: string | null
+          course?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          github_url?: string | null
+          id?: string
+          instagram_url?: string | null
+          linkedin_url?: string | null
+          original_user_id?: string | null
+          whatsapp_url?: string | null
+        }
+        Relationships: []
+      }
       bookmarks: {
         Row: {
           created_at: string
@@ -128,6 +182,81 @@ export type Database = {
           },
         ]
       }
+      lifecycle_email_jobs: {
+        Row: {
+          created_at: string
+          email: string
+          error_message: string | null
+          failed_at: string | null
+          id: string
+          job_type: string
+          provider_message_id: string | null
+          scheduled_for: string
+          sent_at: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          job_type: string
+          provider_message_id?: string | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          error_message?: string | null
+          failed_at?: string | null
+          id?: string
+          job_type?: string
+          provider_message_id?: string | null
+          scheduled_for?: string
+          sent_at?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      email_delivery_events: {
+        Row: {
+          bounce_status: string
+          created_at: string
+          email: string
+          event_type: string
+          id: string
+          payload: Json
+          provider: string
+          provider_event_id: string | null
+        }
+        Insert: {
+          bounce_status?: string
+          created_at?: string
+          email: string
+          event_type: string
+          id?: string
+          payload?: Json
+          provider?: string
+          provider_event_id?: string | null
+        }
+        Update: {
+          bounce_status?: string
+          created_at?: string
+          email?: string
+          event_type?: string
+          id?: string
+          payload?: Json
+          provider?: string
+          provider_event_id?: string | null
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           actor_id: string | null
@@ -205,60 +334,120 @@ export type Database = {
       profiles: {
         Row: {
           account_expires_at: string | null
+          admission_year: number | null
+          alumni_opt_in: boolean
           avatar_url: string | null
           batch_end: number | null
           batch_start: number | null
           bio: string | null
           branch: string | null
           course: string | null
+          course_duration_years: number | null
           created_at: string
+          deletion_scheduled_at: string | null
           email: string
+          email_bounce_status: string
+          expected_completion_year: number | null
+          extended_until: string | null
           full_name: string
+          github_url: string | null
           id: string
+          instagram_url: string | null
           interests: string[] | null
+          last_email_bounce_at: string | null
+          last_email_sent_at: string | null
+          last_revalidated_at: string
+          lifecycle_status: string
+          linkedin_url: string | null
           onboarding_completed: boolean | null
+          permanently_delete_after: string | null
           privacy_accepted: boolean
+          revalidation_count: number
+          restricted_at: string | null
+          revalidation_grace_until: string | null
+          revalidation_method: string | null
           terms_accepted: boolean | null
           updated_at: string
           user_id: string
+          whatsapp_url: string | null
         }
         Insert: {
           account_expires_at?: string | null
+          admission_year?: number | null
+          alumni_opt_in?: boolean
           avatar_url?: string | null
           batch_end?: number | null
           batch_start?: number | null
           bio?: string | null
           branch?: string | null
           course?: string | null
+          course_duration_years?: number | null
           created_at?: string
+          deletion_scheduled_at?: string | null
           email?: string
+          email_bounce_status?: string
+          expected_completion_year?: number | null
+          extended_until?: string | null
           full_name?: string
+          github_url?: string | null
           id?: string
+          instagram_url?: string | null
           interests?: string[] | null
+          last_email_bounce_at?: string | null
+          last_email_sent_at?: string | null
+          last_revalidated_at?: string
+          lifecycle_status?: string
+          linkedin_url?: string | null
           onboarding_completed?: boolean | null
+          permanently_delete_after?: string | null
           privacy_accepted?: boolean
+          revalidation_count?: number
+          restricted_at?: string | null
+          revalidation_grace_until?: string | null
+          revalidation_method?: string | null
           terms_accepted?: boolean | null
           updated_at?: string
           user_id: string
+          whatsapp_url?: string | null
         }
         Update: {
           account_expires_at?: string | null
+          admission_year?: number | null
+          alumni_opt_in?: boolean
           avatar_url?: string | null
           batch_end?: number | null
           batch_start?: number | null
           bio?: string | null
           branch?: string | null
           course?: string | null
+          course_duration_years?: number | null
           created_at?: string
+          deletion_scheduled_at?: string | null
           email?: string
+          email_bounce_status?: string
+          expected_completion_year?: number | null
+          extended_until?: string | null
           full_name?: string
+          github_url?: string | null
           id?: string
+          instagram_url?: string | null
           interests?: string[] | null
+          last_email_bounce_at?: string | null
+          last_email_sent_at?: string | null
+          last_revalidated_at?: string
+          lifecycle_status?: string
+          linkedin_url?: string | null
           onboarding_completed?: boolean | null
+          permanently_delete_after?: string | null
           privacy_accepted?: boolean
+          revalidation_count?: number
+          restricted_at?: string | null
+          revalidation_grace_until?: string | null
+          revalidation_method?: string | null
           terms_accepted?: boolean | null
           updated_at?: string
           user_id?: string
+          whatsapp_url?: string | null
         }
         Relationships: []
       }
@@ -267,7 +456,56 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      archive_profile_to_alumni: {
+        Args: {
+          target_profile: Database["public"]["Tables"]["profiles"]["Row"]
+        }
+        Returns: undefined
+      }
+      compute_expected_completion_year: {
+        Args: {
+          admission_year: number
+          duration_years: number
+        }
+        Returns: number
+      }
+      derive_admission_year_from_email: {
+        Args: {
+          target_email: string
+        }
+        Returns: number
+      }
+      mark_profile_revalidated: {
+        Args: {
+          target_user_id: string
+          method?: string
+        }
+        Returns: Database["public"]["Tables"]["profiles"]["Row"]
+      }
+      queue_lifecycle_email: {
+        Args: {
+          target_user_id: string
+          target_email: string
+          target_job_type: string
+          send_after?: string
+        }
+        Returns: undefined
+      }
+      record_email_delivery_event: {
+        Args: {
+          target_email: string
+          event_type: string
+          bounce_status?: string
+          provider?: string
+          provider_event_id?: string | null
+          payload?: Json
+        }
+        Returns: undefined
+      }
+      process_profile_lifecycle: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       [_ in never]: never

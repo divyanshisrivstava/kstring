@@ -1,6 +1,7 @@
 import { Outlet } from "react-router-dom";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "./AppSidebar";
+import { LifecycleBanner } from "./LifecycleBanner";
 
 const AppLayout = () => {
   return (
@@ -12,6 +13,7 @@ const AppLayout = () => {
             <SidebarTrigger className="mr-4" />
             <h2 className="text-lg font-semibold text-foreground">KIIT Connect</h2>
           </header>
+          <LifecycleBanner />
           <main className="flex-1">
             <Outlet />
           </main>

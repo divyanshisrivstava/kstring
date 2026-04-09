@@ -14,9 +14,11 @@ import Notifications from "@/pages/Notifications";
 import Messages from "@/pages/Messages";
 import Bookmarks from "@/pages/Bookmarks";
 import Profile from "@/pages/Profile";
+import Alumni from "@/pages/Alumni";
 import NotFound from "@/pages/NotFound";
 import Terms from "@/pages/Terms";
 import Privacy from "@/pages/Privacy";
+import AccountStatus from "@/pages/AccountStatus";
 import { getInvalidDomainMessage, isKiitEmail } from "@/lib/auth";
 import { toast } from "sonner";
 
@@ -25,9 +27,11 @@ const queryClient = new QueryClient();
 const ProtectedRoute = ({
   children,
   requireOnboarding = true,
+  allowRestricted = false,
 }: {
   children: React.ReactNode;
   requireOnboarding?: boolean;
+  allowRestricted?: boolean;
 }) => {
   const { user, profile, loading, signOut } = useAuth();
 
@@ -49,6 +53,7 @@ const ProtectedRoute = ({
   if (!user) return <Navigate to="/auth" replace />;
   if (!isKiitEmail(user.email)) return <Navigate to="/auth?reason=invalid-domain" replace />;
   if (!profile) return null;
+  const lifecycleStatus = profile.lifecycle_status ?? "active";
 
   const hasAcceptedTerms = Boolean(profile.terms_accepted);
   const hasAcceptedPrivacy =
@@ -61,6 +66,19 @@ const ProtectedRoute = ({
       return <Navigate to="/onboarding" replace />;
     }
   } else if (!requireOnboarding) {
+    return <Navigate to="/" replace />;
+  }
+
+  if (!allowRestricted && (lifecycleStatus === "restricted" || lifecycleStatus === "scheduled_for_deletion")) {
+    return <Navigate to="/account-status" replace />;
+  }
+
+  if (
+    allowRestricted &&
+    lifecycleStatus !== "restricted" &&
+    lifecycleStatus !== "scheduled_for_deletion" &&
+    lifecycleStatus !== "revalidation_required"
+  ) {
     return <Navigate to="/" replace />;
   }
 
@@ -87,6 +105,14 @@ const App = () => (
             <Route path="/terms" element={<Terms />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route
+              path="/account-status"
+              element={
+                <ProtectedRoute allowRestricted>
+                  <AccountStatus />
+                </ProtectedRoute>
+              }
+            />
+            <Route
               element={
                 <ProtectedRoute>
                   <AppLayout />
@@ -98,6 +124,7 @@ const App = () => (
               <Route path="/notifications" element={<Notifications />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/bookmarks" element={<Bookmarks />} />
+              <Route path="/alumni" element={<Alumni />} />
               <Route path="/profile" element={<Profile />} />
             </Route>
             <Route path="*" element={<NotFound />} />

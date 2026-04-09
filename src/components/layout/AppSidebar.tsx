@@ -1,5 +1,5 @@
 import {
-  Home, Search, Bell, Bookmark, User, LogOut, MessageCircle, GraduationCap,
+  Home, Search, Bell, Bookmark, User, LogOut, MessageCircle, GraduationCap, Users,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
@@ -16,6 +16,7 @@ const navItems = [
   { title: "Notifications", url: "/notifications", icon: Bell },
   { title: "Messages", url: "/messages", icon: MessageCircle },
   { title: "Bookmarks", url: "/bookmarks", icon: Bookmark },
+  { title: "Alumni", url: "/alumni", icon: Users },
   { title: "Profile", url: "/profile", icon: User },
 ];
 

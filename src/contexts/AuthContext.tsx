@@ -10,6 +10,9 @@ interface Profile {
   bio: string;
   course: string;
   branch: string;
+  admission_year: number | null;
+  course_duration_years: number | null;
+  expected_completion_year: number | null;
   batch_start: number | null;
   batch_end: number | null;
   avatar_url: string;
@@ -17,6 +20,23 @@ interface Profile {
   terms_accepted: boolean;
   privacy_accepted: boolean;
   onboarding_completed: boolean;
+  lifecycle_status: "active" | "revalidation_required" | "restricted" | "scheduled_for_deletion";
+  last_revalidated_at: string;
+  revalidation_grace_until: string | null;
+  restricted_at: string | null;
+  deletion_scheduled_at: string | null;
+  permanently_delete_after: string | null;
+  extended_until: string | null;
+  revalidation_count: number;
+  revalidation_method: string | null;
+  email_bounce_status: "none" | "soft" | "hard";
+  last_email_sent_at: string | null;
+  last_email_bounce_at: string | null;
+  alumni_opt_in: boolean;
+  github_url: string | null;
+  linkedin_url: string | null;
+  instagram_url: string | null;
+  whatsapp_url: string | null;
 }
 
 interface AuthContextType {
@@ -45,17 +65,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const fetchProfile = async (userId: string) => {
+  const fetchProfile = async (userId: string, authUser?: User | null) => {
     const { data } = await supabase
       .from("profiles")
       .select("*")
       .eq("user_id", userId)
       .single();
-    setProfile(data as Profile | null);
+
+    const typedProfile = data as Profile | null;
+
+    if (
+      typedProfile &&
+      authUser?.app_metadata?.provider === "google" &&
+      typedProfile.lifecycle_status !== "active"
+    ) {
+      const { data: revalidatedProfile } = await supabase.rpc("mark_profile_revalidated", {
+        target_user_id: userId,
+        method: "google",
+      });
+
+      setProfile((revalidatedProfile as Profile | null) ?? typedProfile);
+      return;
+    }
+
+    setProfile(typedProfile);
   };
 
   const refreshProfile = async () => {
-    if (user) await fetchProfile(user.id);
+    if (user) await fetchProfile(user.id, user);
   };
 
   useEffect(() => {
@@ -64,7 +101,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         setSession(session);
         setUser(session?.user ?? null);
         if (session?.user) {
-          setTimeout(() => fetchProfile(session.user.id), 0);
+          setTimeout(() => fetchProfile(session.user.id, session.user), 0);
         } else {
           setProfile(null);
         }
@@ -76,7 +113,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setSession(session);
       setUser(session?.user ?? null);
       if (session?.user) {
-        fetchProfile(session.user.id);
+        fetchProfile(session.user.id, session.user);
       }
       setLoading(false);
     });

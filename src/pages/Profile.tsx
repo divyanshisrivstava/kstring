@@ -20,6 +20,11 @@ const Profile = () => {
   const [editName, setEditName] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editInterests, setEditInterests] = useState("");
+  const [editGithub, setEditGithub] = useState("");
+  const [editLinkedin, setEditLinkedin] = useState("");
+  const [editInstagram, setEditInstagram] = useState("");
+  const [editWhatsapp, setEditWhatsapp] = useState("");
+  const [editAlumniOptIn, setEditAlumniOptIn] = useState(false);
   const [saving, setSaving] = useState(false);
 
   const fetchPosts = useCallback(async () => {
@@ -46,6 +51,11 @@ const Profile = () => {
     setEditName(profile?.full_name || "");
     setEditBio(profile?.bio || "");
     setEditInterests((profile?.interests || []).join(", "));
+    setEditGithub(profile?.github_url || "");
+    setEditLinkedin(profile?.linkedin_url || "");
+    setEditInstagram(profile?.instagram_url || "");
+    setEditWhatsapp(profile?.whatsapp_url || "");
+    setEditAlumniOptIn(profile?.alumni_opt_in || false);
     setEditOpen(true);
   };
 
@@ -59,6 +69,11 @@ const Profile = () => {
           full_name: editName,
           bio: editBio,
           interests: editInterests.split(",").map((s) => s.trim()).filter(Boolean),
+          github_url: editGithub || null,
+          linkedin_url: editLinkedin || null,
+          instagram_url: editInstagram || null,
+          whatsapp_url: editWhatsapp || null,
+          alumni_opt_in: editAlumniOptIn,
         })
         .eq("user_id", user.id);
       if (error) throw error;
@@ -110,6 +125,34 @@ const Profile = () => {
                       <Label>Interests (comma separated)</Label>
                       <Input value={editInterests} onChange={(e) => setEditInterests(e.target.value)} />
                     </div>
+                    <div className="space-y-2">
+                      <Label>GitHub URL</Label>
+                      <Input value={editGithub} onChange={(e) => setEditGithub(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>LinkedIn URL</Label>
+                      <Input value={editLinkedin} onChange={(e) => setEditLinkedin(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Instagram URL</Label>
+                      <Input value={editInstagram} onChange={(e) => setEditInstagram(e.target.value)} />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>WhatsApp URL</Label>
+                      <Input value={editWhatsapp} onChange={(e) => setEditWhatsapp(e.target.value)} />
+                    </div>
+                    <div className="flex items-start gap-3 rounded-lg bg-muted/50 p-3">
+                      <input
+                        id="edit-alumni-opt-in"
+                        type="checkbox"
+                        checked={editAlumniOptIn}
+                        onChange={(e) => setEditAlumniOptIn(e.target.checked)}
+                        className="mt-1"
+                      />
+                      <label htmlFor="edit-alumni-opt-in" className="text-sm text-muted-foreground">
+                        Show a minimal alumni card with my contact links after my main account is archived.
+                      </label>
+                    </div>
                     <Button onClick={handleSave} disabled={saving} className="w-full">
                       {saving ? "Saving..." : "Save Changes"}
                     </Button>
@@ -124,6 +167,12 @@ const Profile = () => {
                   <span className="flex items-center gap-1.5">
                     <BookOpen className="h-4 w-4" />
                     {profile.course}
+                  </span>
+                )}
+                {profile?.admission_year && (
+                  <span className="flex items-center gap-1.5">
+                    <Calendar className="h-4 w-4" />
+                    Admitted {profile.admission_year}
                   </span>
                 )}
                 {profile?.branch && (
@@ -146,6 +195,14 @@ const Profile = () => {
                     {interest}
                   </span>
                 ))}
+              </div>
+            )}
+            {(profile?.github_url || profile?.linkedin_url || profile?.instagram_url || profile?.whatsapp_url) && (
+              <div className="flex flex-wrap gap-3 mt-4 text-sm">
+                {profile.github_url && <a href={profile.github_url} target="_blank" rel="noreferrer" className="text-primary hover:underline">GitHub</a>}
+                {profile.linkedin_url && <a href={profile.linkedin_url} target="_blank" rel="noreferrer" className="text-primary hover:underline">LinkedIn</a>}
+                {profile.instagram_url && <a href={profile.instagram_url} target="_blank" rel="noreferrer" className="text-primary hover:underline">Instagram</a>}
+                {profile.whatsapp_url && <a href={profile.whatsapp_url} target="_blank" rel="noreferrer" className="text-primary hover:underline">WhatsApp</a>}
               </div>
             )}
           </div>
